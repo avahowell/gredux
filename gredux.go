@@ -10,15 +10,11 @@ type (
 
 	// Reducer is the func which receives actions dispatched
 	// using Atom.Dispatch() and updates the internal state.
-	Reducer func(State, Action)
-
-	// ActionID defines a unique identifier for an Action.
-	// This ID is used to determine state updates in a Reducer.
-	ActionID string
+	Reducer func(State, Action) State
 
 	// Action defines a dispatchable data type that triggers updates in the Atom.
 	Action struct {
-		ID   ActionID
+		ID   string
 		data interface{}
 	}
 
@@ -37,7 +33,9 @@ type (
 func New(initialState State) *Atom {
 	at := Atom{
 		state:   initialState,
-		reducer: func(s State, a Action) {},
+		reducer: func(s State, a Action) State {
+			return s
+		},
 	}
 	return &at
 }
@@ -53,7 +51,8 @@ func (at *Atom) AfterUpdate(update func(State)) {
 	at.update = update
 }
 
-func (at *Atom) getstate() State {
+// getState returns a copy of Atom's current state map.
+func (at *Atom) getState() State {
 	currentState := make(State)
 	for k, v := range at.state {
 		currentState[k] = v
@@ -61,19 +60,19 @@ func (at *Atom) getstate() State {
 	return currentState
 }
 
-// GetState returns a copy of the current state
-func (at *Atom) GetState() State {
+// State returns a copy of the current state.
+func (at *Atom) State() State {
 	at.mu.RLock()
 	defer at.mu.RUnlock()
-	return at.getstate()
+	return at.getState()
 }
 
 // Dispatch dispatches an Action into the Atom.
 func (at *Atom) Dispatch(action Action) {
 	at.mu.Lock()
 	defer at.mu.Unlock()
-	at.reducer(at.state, action)
+	at.state = at.reducer(at.getState(), action)
 	if at.update != nil {
-		at.update(at.getstate())
+		at.update(at.getState())
 	}
 }
