@@ -10,9 +10,9 @@ import (
 func TestDispatch(t *testing.T) {
 	atom := New()
 	testAction := Action{"TestAction", "just a test"}
-	testReducer := func(st state, action Action) {
+	testReducer := func(state State, action Action) {
 		if action.ID == testAction.ID {
-			st["testSuccess"] = true
+			state["testSuccess"] = true
 		}
 	}
 	atom.AddReducer(testReducer)
@@ -25,8 +25,8 @@ func TestDispatch(t *testing.T) {
 // TestConcurrentDispatch verifies that concurrently dispatching actions works as expected.
 func TestConcurrentDispatch(t *testing.T) {
 	atom := New()
-	testReducer := func(st state, action Action) {
-		st["test"] = true
+	testReducer := func(state State, action Action) {
+		state["test"] = true
 	}
 	atom.AddReducer(testReducer)
 	for i := 0; i < 10; i++ {

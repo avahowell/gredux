@@ -9,23 +9,23 @@ import (
 )
 
 // state defines the immutable state of the Atom.
-type state map[string]interface{}
+type State map[string]interface{}
 
 // Reducer defines a func that receives a 
 // new Action when dispatched into the Atom.
-type Reducer func(state, Action)
+type Reducer func(State, Action)
 
 // Atom implements the state atom type, otherwise known as a 'store' in flux.
 type Atom struct {
 	mu sync.RWMutex
 	reducers []Reducer
-	st state
+	state State
 }
 
 // New creates a new gredux Atom
 func New() (*Atom) {
 	at := Atom{
-		st: make(state),
+		state: make(State),
 	}
 	return &at
 }
@@ -46,11 +46,11 @@ func (at *Atom) AddReducer(r Reducer) {
 }
 
 // GetState returns a copy of the current atom state
-func (at *Atom) GetState() state {
+func (at *Atom) GetState() State {
 	at.mu.RLock()
 	defer at.mu.RUnlock()
-	currentState := make(state)
-	for k, v := range at.st {
+	currentState := make(State)
+	for k, v := range at.state {
 		currentState[k] = v
 	}
 	return currentState
@@ -61,6 +61,6 @@ func (at *Atom) Dispatch(action Action) {
 	for _, reducer := range at.reducers {
 		at.mu.Lock()
 		defer at.mu.Unlock()
-		reducer(at.st, action)
+		reducer(at.state, action)
 	}
 }
