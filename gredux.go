@@ -12,7 +12,7 @@ type (
 	// using Atom.Dispatch() and updates the internal state.
 	Reducer func(State, Action)
 
-	// ActionID defines a unique identifier for an Action.  
+	// ActionID defines a unique identifier for an Action.
 	// This ID is used to determine state updates in a Reducer.
 	ActionID string
 
@@ -26,16 +26,18 @@ type (
 	// The current state of the Atom can be received by calling GetState()
 	// but the state can only be changed by a Reducer as the result of a Dispatch'd Action.
 	Atom struct {
-		mu sync.RWMutex
+		mu      sync.RWMutex
 		reducer Reducer
-		state State
+		state   State
+		update func(State)
 	}
 )
 
 // New instantiates a new gredux Atom. initialState should be an initialized State map.
 func New(initialState State) *Atom {
 	at := Atom{
-		state: initialState,
+		state:   initialState,
+		reducer: func(s State, a Action) {},
 	}
 	return &at
 }
@@ -45,10 +47,13 @@ func (at *Atom) Reducer(r Reducer) {
 	at.reducer = r
 }
 
-// GetState returns a copy of the current state
-func (at *Atom) GetState() State {
-	at.mu.RLock()
-	defer at.mu.RUnlock()
+// AfterUpdate sets Atom's update func. `update` is called after each
+// dispatch with a copy of the new state.
+func (at *Atom) AfterUpdate(update func(State)) {
+	at.update = update
+}
+
+func (at *Atom) getstate() State {
 	currentState := make(State)
 	for k, v := range at.state {
 		currentState[k] = v
@@ -56,9 +61,19 @@ func (at *Atom) GetState() State {
 	return currentState
 }
 
+// GetState returns a copy of the current state
+func (at *Atom) GetState() State {
+	at.mu.RLock()
+	defer at.mu.RUnlock()
+	return at.getstate()
+}
+
 // Dispatch dispatches an Action into the Atom.
 func (at *Atom) Dispatch(action Action) {
 	at.mu.Lock()
 	defer at.mu.Unlock()
 	at.reducer(at.state, action)
+	if at.update != nil {
+		at.update(at.getstate())
+	}
 }

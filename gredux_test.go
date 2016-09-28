@@ -8,6 +8,7 @@ import (
 
 func TestDispatch(t *testing.T) {
 	atom := New(make(State))
+	atom.Dispatch(Action{"test", nil})
 	atom.Reducer(func(state State, action Action) {
 		if action.ID == "test" {
 			state["testSuccess"] = true
@@ -16,6 +17,28 @@ func TestDispatch(t *testing.T) {
 	atom.Dispatch(Action{"test", nil})
 	if _, ok := atom.GetState()["testSuccess"]; !ok {
 		t.Fatal("expected state atom to have key added by reducer")
+	}
+}
+
+func TestDispatchUpdate(t *testing.T) {
+	atom := New(make(State))
+	atom.Reducer(func(state State, action Action) {
+		if action.ID == "test" {
+			state["testSuccess"] = true
+		}
+	})
+	done := make(chan struct{})
+	atom.AfterUpdate(func(state State) {
+		defer close(done)
+		if state["testSuccess"] != true {
+			t.Fatal()
+		}
+	})
+	atom.Dispatch(Action{"test", nil})
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("OnUpdate func was not called after dispatch after 1 second")
 	}
 }
 
