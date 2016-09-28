@@ -1,3 +1,3 @@
 # gredux
 
-gredux is an implementation of a [redux]()-style state atom.
+gredux is a golang implementation of a [redux](https://github.com/reactjs/redux)-esque state atom.

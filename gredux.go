@@ -1,43 +1,43 @@
-// gredux implements a state atom, similar to the
-// javascript library "redux".  The purpose is to greatly simplify writing
-// complex, concurrent event-driven systems.
-// LICENSE: MIT
 package gredux
 
 import (
 	"sync"
 )
 
-// state defines the immutable state of the Atom.
-type State map[string]interface{}
+type (
+	// State is the state of the gredux Atom.
+	State map[string]interface{}
 
-// Reducer defines a func that receives a
-// new Action when dispatched into the Atom.
-type Reducer func(State, Action)
+	// Reducer is the func which receives actions dispatched
+	// using Atom.Dispatch() and updates the internal state.
+	Reducer func(State, Action)
 
-// Atom implements the state atom type, otherwise known as a 'store' in flux.
-type Atom struct {
-	mu      sync.RWMutex
-	reducer Reducer
-	state   State
-}
+	// ActionID defines a unique identifier for an Action.  
+	// This ID is used to determine state updates in a Reducer.
+	ActionID string
 
-// New creates a new gredux Atom
-func New(initialState map[string]interface{}) *Atom {
+	// Action defines a dispatchable data type that triggers updates in the Atom.
+	Action struct {
+		ID   ActionID
+		data interface{}
+	}
+
+	// Atom defines an immutable store of state.
+	// The current state of the Atom can be received by calling GetState()
+	// but the state can only be changed by a Reducer as the result of a Dispatch'd Action.
+	Atom struct {
+		mu sync.RWMutex
+		reducer Reducer
+		state State
+	}
+)
+
+// New instantiates a new gredux Atom. initialState should be an initialized State map.
+func New(initialState State) *Atom {
 	at := Atom{
 		state: initialState,
 	}
 	return &at
-}
-
-// ActionID defines a unique identifier for an
-// Action, switched over in a reducer func.
-type ActionID string
-
-// Action defines an action that can be dispatched in to the Atom.
-type Action struct {
-	ID   ActionID
-	data interface{}
 }
 
 // Reducer sets the atom's reducer function to the function `r`.
