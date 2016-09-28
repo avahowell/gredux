@@ -1,14 +1,14 @@
 package gredux
 
 import (
+	"math/rand"
 	"testing"
 	"time"
-	"math/rand"
 )
 
 func TestDispatch(t *testing.T) {
 	atom := New(make(State))
-	atom.AddReducer(func(state State, action Action) {
+	atom.Reducer(func(state State, action Action) {
 		if action.ID == "test" {
 			state["testSuccess"] = true
 		}
@@ -23,7 +23,7 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 	initialState := make(State)
 	initialState["count"] = 0
 	atom := New(initialState)
-	atom.AddReducer(func(state State, action Action) {
+	atom.Reducer(func(state State, action Action) {
 		if action.ID == "increment" {
 			state["count"] = state["count"].(int) + action.data.(int)
 		}
@@ -53,7 +53,7 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 
 func TestConcurrentDispatch(t *testing.T) {
 	atom := New(make(State))
-	atom.AddReducer(func(state State, action Action) {
+	atom.Reducer(func(state State, action Action) {
 		state["test"] = true
 	})
 	for i := 0; i < 10; i++ {
@@ -61,14 +61,14 @@ func TestConcurrentDispatch(t *testing.T) {
 			time.Sleep(time.Second * time.Duration(rand.Int()))
 			atom.Dispatch(Action{"test", nil})
 		}()
-	} 
+	}
 }
 
 func BenchmarkDispatch(b *testing.B) {
 	initialState := make(State)
 	initialState["count"] = 0
 	atom := New(initialState)
-	atom.AddReducer(func(state State, action Action) {
+	atom.Reducer(func(state State, action Action) {
 		if action.ID == "increment" {
 			state["count"] = state["count"].(int) + 1
 		}
