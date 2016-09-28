@@ -23,9 +23,9 @@ type Atom struct {
 }
 
 // New creates a new gredux Atom
-func New() (*Atom) {
+func New(initialState map[string]interface{}) (*Atom) {
 	at := Atom{
-		state: make(State),
+		state: initialState,
 	}
 	return &at
 }
@@ -45,7 +45,7 @@ func (at *Atom) AddReducer(r Reducer) {
 	at.reducers = append(at.reducers, r)
 }
 
-// GetState returns a copy of the current atom state
+// GetState returns a copy of the current state
 func (at *Atom) GetState() State {
 	at.mu.RLock()
 	defer at.mu.RUnlock()
@@ -58,9 +58,9 @@ func (at *Atom) GetState() State {
 
 // Dispatch dispatches an Action into the Atom.
 func (at *Atom) Dispatch(action Action) {
+	at.mu.Lock()
+	defer at.mu.Unlock()
 	for _, reducer := range at.reducers {
-		at.mu.Lock()
-		defer at.mu.Unlock()
 		reducer(at.state, action)
 	}
 }
