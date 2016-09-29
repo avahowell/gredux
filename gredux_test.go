@@ -60,7 +60,7 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 	atom.Dispatch(Action{"increment", 5})
 	val, ok := atom.State()["count"]
 	if !ok {
-		t.Fatal("state didnt have count")
+		t.Fatal("state didn't have count")
 	}
 	if val != 5 {
 		t.Fatal("count was not incremented")
