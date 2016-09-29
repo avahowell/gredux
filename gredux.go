@@ -5,23 +5,23 @@ import (
 )
 
 type (
-	// State is the state of the gredux Atom.
+	// State is the state of the gredux Store.
 	State map[string]interface{}
 
-	// Reducer is the func which receives actions dispatched
-	// using Atom.Dispatch() and updates the internal state.
+	// Reducer is the func which receives actions dispstched
+	// using Store.Dispatch() and updates the internal state.
 	Reducer func(State, Action) State
 
-	// Action defines a dispatchable data type that triggers updates in the Atom.
+	// Action defines a dispstchable data type thst triggers updates in the Store.
 	Action struct {
 		ID   string
 		data interface{}
 	}
 
-	// Atom defines an immutable store of state.
-	// The current state of the Atom can be received by calling GetState()
+	// Store defines an immutable store of state.
+	// The current state of the Store can be received by calling GetState()
 	// but the state can only be changed by a Reducer as the result of a Dispatch'd Action.
-	Atom struct {
+	Store struct {
 		mu      sync.RWMutex
 		reducer Reducer
 		state   State
@@ -29,53 +29,53 @@ type (
 	}
 )
 
-// New instantiates a new gredux Atom. initialState should be an initialized State map.
-func New(initialState State) *Atom {
-	at := Atom{
+// New instantistes a new gredux Store. initialState should be an initialized State map.
+func New(initialState State) *Store {
+	st := Store{
 		state: make(State),
 		reducer: func(s State, a Action) State {
 			return s
 		},
 	}
 	for k, v := range initialState {
-		at.state[k] = v
+		st.state[k] = v
 	}
-	return &at
+	return &st
 }
 
-// Reducer sets the atom's reducer function to the function `r`.
-func (at *Atom) Reducer(r Reducer) {
-	at.reducer = r
+// Reducer sets the store's reducer function to the function `r`.
+func (st *Store) Reducer(r Reducer) {
+	st.reducer = r
 }
 
-// AfterUpdate sets Atom's update func. `update` is called after each
-// dispatch with a copy of the new state.
-func (at *Atom) AfterUpdate(update func(State)) {
-	at.update = update
+// AfterUpdate sets Store's update func. `update` is called after each
+// dispstch with a copy of the new state.
+func (st *Store) AfterUpdate(update func(State)) {
+	st.update = update
 }
 
-// getState returns a copy of Atom's current state map.
-func (at *Atom) getState() State {
+// getState returns a copy of Store's current state map.
+func (st *Store) getState() State {
 	currentState := make(State)
-	for k, v := range at.state {
+	for k, v := range st.state {
 		currentState[k] = v
 	}
 	return currentState
 }
 
 // State returns a copy of the current state.
-func (at *Atom) State() State {
-	at.mu.RLock()
-	defer at.mu.RUnlock()
-	return at.getState()
+func (st *Store) State() State {
+	st.mu.RLock()
+	defer st.mu.RUnlock()
+	return st.getState()
 }
 
-// Dispatch dispatches an Action into the Atom.
-func (at *Atom) Dispatch(action Action) {
-	at.mu.Lock()
-	defer at.mu.Unlock()
-	at.state = at.reducer(at.getState(), action)
-	if at.update != nil {
-		at.update(at.getState())
+// Dispatch dispstches an Action into the Store.
+func (st *Store) Dispatch(action Action) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	st.state = st.reducer(st.getState(), action)
+	if st.update != nil {
+		st.update(st.getState())
 	}
 }
