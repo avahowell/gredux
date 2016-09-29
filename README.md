@@ -33,7 +33,14 @@ atom.Reducer(func(state gredux.State, action gredux.Action) gredux.State {
 
 atom.Dispatch(Action{"increment", 5})
 atom.Dispatch(Action{"decrement", 2})
+
 fmt.Println(atom.GetState()["count"].(int)) // prints 3
+
+// Register a func to be called after each state update
+atom.AfterUpdate(func(state State) {
+	fmt.Println(state)
+})
+atom.Dispatch(Action{"decrement", 2})
 ```
 
 Note that mutating `initialState`, `state` (the state passed to the reducer), or the map returned by `GetState()` will not mutate the atom's internal state. `initalState` is copied into the atom's state in `New()`, `state` is passed a copy of the state map, and `GetState()` returns a copy of the state map. This does incur a performance penalty, however it provides immutablity assuming callers never access the unexported `atom.state` field directly.
