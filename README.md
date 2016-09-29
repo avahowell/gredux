@@ -43,4 +43,4 @@ store.AfterUpdate(func(state State) {
 store.Dispatch(Action{"decrement", 2})
 ```
 
-Note that mutating `initialState`, `state` (the state passed to the reducer), or the map returned by `GetState()` will not mutate the atom's internal state. `initalState` is copied into the atom's state in `New()`, `state` is passed a copy of the state map, and `GetState()` returns a copy of the state map. This does incur a performance penalty, however it provides immutablity assuming callers never access the unexported `atom.state` field directly.
+Note that mutating `initialState`, `state` (the state passed to the reducer), or the map returned by `GetState()` will not mutate the store's internal state. `initalState` is copied into the store's state in `New()`, `state` is passed a copy of the state map, and `GetState()` returns a copy of the state map. This does incur a performance penalty, however it provides immutablity assuming callers never access the unexported `store.state` field directly.
