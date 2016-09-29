@@ -32,10 +32,13 @@ type (
 // New instantiates a new gredux Atom. initialState should be an initialized State map.
 func New(initialState State) *Atom {
 	at := Atom{
-		state:   initialState,
+		state:   make(State),
 		reducer: func(s State, a Action) State {
 			return s
 		},
+	}
+	for k, v := range initialState {
+		at.state[k] = v
 	}
 	return &at
 }
