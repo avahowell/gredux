@@ -25,14 +25,14 @@ type (
 		mu      sync.RWMutex
 		reducer Reducer
 		state   State
-		update func(State)
+		update  func(State)
 	}
 )
 
 // New instantiates a new gredux Atom. initialState should be an initialized State map.
 func New(initialState State) *Atom {
 	at := Atom{
-		state:   make(State),
+		state: make(State),
 		reducer: func(s State, a Action) State {
 			return s
 		},

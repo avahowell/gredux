@@ -48,7 +48,7 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 	initialState := make(State)
 	initialState["count"] = 0
 	atom := New(initialState)
-	atom.Reducer(func(state State, action Action)  State{
+	atom.Reducer(func(state State, action Action) State {
 		if action.ID == "increment" {
 			state["count"] = state["count"].(int) + action.data.(int)
 		}
