@@ -50,10 +50,10 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 	store := New(initialState)
 	store.Reducer(func(state State, action Action) State {
 		if action.ID == "increment" {
-			state["count"] = state["count"].(int) + action.data.(int)
+			state["count"] = state["count"].(int) + action.Data.(int)
 		}
 		if action.ID == "decrement" {
-			state["count"] = state["count"].(int) - action.data.(int)
+			state["count"] = state["count"].(int) - action.Data.(int)
 		}
 		return state
 	})

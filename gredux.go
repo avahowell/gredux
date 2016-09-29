@@ -12,10 +12,10 @@ type (
 	// using Store.Dispatch() and updates the internal state.
 	Reducer func(State, Action) State
 
-	// Action defines a dispstchable data type thst triggers updates in the Store.
+	// Action defines a dispatchable data type that triggers updates in the Store.
 	Action struct {
 		ID   string
-		data interface{}
+		Data interface{}
 	}
 
 	// Store defines an immutable store of state.
@@ -29,7 +29,7 @@ type (
 	}
 )
 
-// New instantistes a new gredux Store. initialState should be an initialized State map.
+// New instantiates a new gredux Store. initialState should be an initialized State map.
 func New(initialState State) *Store {
 	st := Store{
 		state: make(State),
@@ -49,7 +49,7 @@ func (st *Store) Reducer(r Reducer) {
 }
 
 // AfterUpdate sets Store's update func. `update` is called after each
-// dispstch with a copy of the new state.
+// dispatch with a copy of the new state.
 func (st *Store) AfterUpdate(update func(State)) {
 	st.update = update
 }
@@ -70,7 +70,7 @@ func (st *Store) State() State {
 	return st.getState()
 }
 
-// Dispatch dispstches an Action into the Store.
+// Dispatch dispatches an Action into the Store.
 func (st *Store) Dispatch(action Action) {
 	st.mu.Lock()
 	defer st.mu.Unlock()
