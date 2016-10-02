@@ -98,6 +98,55 @@ func TestConcurrentDispatch(t *testing.T) {
 		}()
 	}
 }
+
+// TestStoreImmutability verifies that mutating the state passed 
+// to AfterUpdate, Reducer, or returned by State() does not effect the internal state.
+func TestStoreImmutability(t *testing.T) {
+	type testState struct {
+		success bool
+		mutated bool
+	}
+	store := New(testState{false, false})
+	store.Reducer(func(state State, action Action) State {
+		st := state.(testState)
+		if st.mutated {
+			t.Fatal("state was mutated")
+		}
+		st.mutated = true
+		switch(action.ID) {
+		case "test":
+			return testState{true, false}
+		default:
+			return state
+		}
+	})
+	i := 0
+	done := make(chan struct{})
+	store.AfterUpdate(func(state State) {
+		i++
+		if i == 2 {
+			defer close(done)
+		}
+		st := state.(testState)
+		if st.mutated {
+			t.Fatal("state was mutated")
+		}
+		st.mutated = true
+	})
+	store.Dispatch(Action{"test", nil})
+	store.Dispatch(Action{"test", nil})
+	st := store.State().(testState)
+	st.mutated = true
+	select {
+	case <-done:
+		// success!
+	case <-time.After(time.Second):
+		t.Fatal("TestStoreImmutability timed out after one second")
+	}
+	if store.State().(testState).mutated {
+		t.Fatal("store was mutated")
+	}
+}
 /*
 func BenchmarkDispatch(b *testing.B) {
 	initialState := make(State)
