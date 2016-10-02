@@ -148,20 +148,21 @@ func TestStoreImmutability(t *testing.T) {
 	}
 }
 
-/*
 func BenchmarkDispatch(b *testing.B) {
-	initialState := make(State)
-	initialState["count"] = 0
-	store := New(initialState)
+	type counterState struct {
+		count int
+	}
+	store := New(counterState{0})
 	store.Reducer(func(state State, action Action) State {
-		if action.ID == "increment" {
-			state["count"] = state["count"].(int) + 1
+		switch action.ID {
+		case "increment":
+			return counterState{state.(counterState).count + 1}
+		default:
+			return state
 		}
-		return state
 	})
 
 	for i := 0; i < b.N; i++ {
 		store.Dispatch(Action{"increment", nil})
 	}
 }
-*/
