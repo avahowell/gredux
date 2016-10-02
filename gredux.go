@@ -8,7 +8,7 @@ type (
 	// State is the state of the gredux Store.
 	State interface{}
 
-	// Reducer is the func which receives actions dispstched
+	// Reducer is the func which receives actions dispatched
 	// using Store.Dispatch() and updates the internal state.
 	Reducer func(State, Action) State
 
@@ -19,7 +19,7 @@ type (
 	}
 
 	// Store defines an immutable store of state.
-	// The current state of the Store can be received by calling GetState()
+	// The current state of the Store can be received by calling State()
 	// but the state can only be changed by a Reducer as the result of a Dispatch'd Action.
 	Store struct {
 		mu      sync.RWMutex
@@ -29,7 +29,8 @@ type (
 	}
 )
 
-// New instantiates a new gredux Store. initialState should be an initialized State map.
+// New instantiates a new gredux Store.
+// initialState should be the struct used to define the Store's state.
 func New(initialState State) *Store {
 	st := Store{
 		reducer: func(s State, a Action) State {

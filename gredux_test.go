@@ -1,9 +1,9 @@
 package gredux
 
 import (
+	"math/rand"
 	"testing"
 	"time"
-	"math/rand"
 )
 
 func TestDispatch(t *testing.T) {
@@ -13,7 +13,7 @@ func TestDispatch(t *testing.T) {
 	store := New(testState{false})
 	store.Dispatch(Action{"test", nil})
 	store.Reducer(func(state State, action Action) State {
-		switch(action.ID) {
+		switch action.ID {
 		case "test":
 			return testState{true}
 		default:
@@ -32,7 +32,7 @@ func TestDispatchUpdate(t *testing.T) {
 	}
 	store := New(testState{false})
 	store.Reducer(func(state State, action Action) State {
-		switch(action.ID) {
+		switch action.ID {
 		case "test":
 			return testState{true}
 		default:
@@ -60,7 +60,7 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 	}
 	store := New(counterState{0})
 	store.Reducer(func(state State, action Action) State {
-		switch(action.ID) {
+		switch action.ID {
 		case "increment":
 			return counterState{state.(counterState).count + action.Data.(int)}
 		case "decrement":
@@ -99,7 +99,7 @@ func TestConcurrentDispatch(t *testing.T) {
 	}
 }
 
-// TestStoreImmutability verifies that mutating the state passed 
+// TestStoreImmutability verifies that mutating the state passed
 // to AfterUpdate, Reducer, or returned by State() does not effect the internal state.
 func TestStoreImmutability(t *testing.T) {
 	type testState struct {
@@ -113,7 +113,7 @@ func TestStoreImmutability(t *testing.T) {
 			t.Fatal("state was mutated")
 		}
 		st.mutated = true
-		switch(action.ID) {
+		switch action.ID {
 		case "test":
 			return testState{true, false}
 		default:
@@ -147,6 +147,7 @@ func TestStoreImmutability(t *testing.T) {
 		t.Fatal("store was mutated")
 	}
 }
+
 /*
 func BenchmarkDispatch(b *testing.B) {
 	initialState := make(State)
