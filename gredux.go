@@ -6,7 +6,7 @@ import (
 
 type (
 	// State is the state of the gredux Store.
-	State map[string]interface{}
+	State interface{}
 
 	// Reducer is the func which receives actions dispstched
 	// using Store.Dispatch() and updates the internal state.
@@ -32,13 +32,10 @@ type (
 // New instantiates a new gredux Store. initialState should be an initialized State map.
 func New(initialState State) *Store {
 	st := Store{
-		state: make(State),
 		reducer: func(s State, a Action) State {
 			return s
 		},
-	}
-	for k, v := range initialState {
-		st.state[k] = v
+		state: initialState,
 	}
 	return &st
 }
@@ -56,11 +53,7 @@ func (st *Store) AfterUpdate(update func(State)) {
 
 // getState returns a copy of Store's current state map.
 func (st *Store) getState() State {
-	currentState := make(State)
-	for k, v := range st.state {
-		currentState[k] = v
-	}
-	return currentState
+	return st.state
 }
 
 // State returns a copy of the current state.

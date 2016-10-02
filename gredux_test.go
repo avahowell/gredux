@@ -1,38 +1,48 @@
 package gredux
 
 import (
-	"math/rand"
 	"testing"
 	"time"
+	"math/rand"
 )
 
 func TestDispatch(t *testing.T) {
-	store := New(make(State))
+	type testState struct {
+		success bool
+	}
+	store := New(testState{false})
 	store.Dispatch(Action{"test", nil})
 	store.Reducer(func(state State, action Action) State {
-		if action.ID == "test" {
-			state["testSuccess"] = true
+		switch(action.ID) {
+		case "test":
+			return testState{true}
+		default:
+			return state
 		}
-		return state
 	})
 	store.Dispatch(Action{"test", nil})
-	if _, ok := store.State()["testSuccess"]; !ok {
-		t.Fatal("expected state store to have key added by reducer")
+	if st := store.State().(testState); st.success != true {
+		t.Fatal("expected reducer to set success")
 	}
 }
 
 func TestDispatchUpdate(t *testing.T) {
-	store := New(make(State))
+	type testState struct {
+		success bool
+	}
+	store := New(testState{false})
 	store.Reducer(func(state State, action Action) State {
-		if action.ID == "test" {
-			state["testSuccess"] = true
+		switch(action.ID) {
+		case "test":
+			return testState{true}
+		default:
+			return state
 		}
-		return state
 	})
 	done := make(chan struct{})
 	store.AfterUpdate(func(state State) {
 		defer close(done)
-		if state["testSuccess"] != true {
+		if state.(testState).success != true {
 			t.Fatal()
 		}
 	})
@@ -45,43 +55,41 @@ func TestDispatchUpdate(t *testing.T) {
 }
 
 func TestDispatchIncrementDecrement(t *testing.T) {
-	initialState := make(State)
-	initialState["count"] = 0
-	store := New(initialState)
+	type counterState struct {
+		count int
+	}
+	store := New(counterState{0})
 	store.Reducer(func(state State, action Action) State {
-		if action.ID == "increment" {
-			state["count"] = state["count"].(int) + action.Data.(int)
+		switch(action.ID) {
+		case "increment":
+			return counterState{state.(counterState).count + action.Data.(int)}
+		case "decrement":
+			return counterState{state.(counterState).count - action.Data.(int)}
+		default:
+			return state
 		}
-		if action.ID == "decrement" {
-			state["count"] = state["count"].(int) - action.Data.(int)
-		}
-		return state
 	})
 	store.Dispatch(Action{"increment", 5})
-	val, ok := store.State()["count"]
-	if !ok {
-		t.Fatal("state didn't have count")
-	}
-	if val != 5 {
-		t.Fatal("count was not incremented")
+	if val := store.State().(counterState).count; val != 5 {
+		t.Fatal("increment did not increment correctly")
 	}
 	store.Dispatch(Action{"increment", 3})
-	val, _ = store.State()["count"]
-	if val != 8 {
-		t.Fatal("count was not incremented")
+	if val := store.State().(counterState).count; val != 8 {
+		t.Fatal("increment did not increment correctly")
 	}
 	store.Dispatch(Action{"decrement", 2})
-	val, _ = store.State()["count"]
-	if val != 6 {
-		t.Fatal("count was not decremented")
+	if val := store.State().(counterState).count; val != 6 {
+		t.Fatal("decrement did not decrement correctly")
 	}
 }
 
 func TestConcurrentDispatch(t *testing.T) {
-	store := New(make(State))
+	type testState struct {
+		success bool
+	}
+	store := New(testState{false})
 	store.Reducer(func(state State, action Action) State {
-		state["test"] = true
-		return state
+		return testState{true}
 	})
 	for i := 0; i < 10; i++ {
 		go func() {
@@ -90,7 +98,7 @@ func TestConcurrentDispatch(t *testing.T) {
 		}()
 	}
 }
-
+/*
 func BenchmarkDispatch(b *testing.B) {
 	initialState := make(State)
 	initialState["count"] = 0
@@ -106,3 +114,4 @@ func BenchmarkDispatch(b *testing.B) {
 		store.Dispatch(Action{"increment", nil})
 	}
 }
+*/
