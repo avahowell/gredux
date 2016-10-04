@@ -1,7 +1,7 @@
 # gredux
 [![Go Report Card](https://goreportcard.com/badge/github.com/johnathanhowell/gredux)](https://goreportcard.com/report/github.com/johnathanhowell/gredux)
-[![GoDoc](https://godoc.org/github.com/johnathanhowell/gredux?status.svg)](https://godoc.org/github.com/johnathanhowell/gredux)
 [![Build Status](https://travis-ci.org/johnathanhowell/gredux.svg?branch=master)](https://travis-ci.org/johnathanhowell/gredux)
+[![GoDoc](https://godoc.org/github.com/johnathanhowell/gredux?status.svg)](https://godoc.org/github.com/johnathanhowell/gredux)
 
 gredux is a golang implementation of a [redux](https://github.com/reactjs/redux)-esque state container. The aim is to provide a structure for writing applications which have consistent, predictable behaviour.
 
