@@ -21,7 +21,7 @@ func TestDispatch(t *testing.T) {
 		}
 	})
 	store.Dispatch(Action{"test", nil})
-	if st := store.State().(testState); st.success != true {
+	if st := store.State().(testState); !st.success {
 		t.Fatal("expected reducer to set success")
 	}
 }
@@ -42,7 +42,7 @@ func TestDispatchUpdate(t *testing.T) {
 	done := make(chan struct{})
 	store.AfterUpdate(func(state State) {
 		defer close(done)
-		if state.(testState).success != true {
+		if !state.(testState).success {
 			t.Fatal()
 		}
 	})
