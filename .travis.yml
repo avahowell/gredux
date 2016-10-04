@@ -1,0 +1,9 @@
+language: go
+
+os:
+  - linux
+
+go:
+  - 1.6
+
+script: go test -v -race ./...
