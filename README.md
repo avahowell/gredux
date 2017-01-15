@@ -45,7 +45,7 @@ fmt.Println(store.Dispatch(Action{"get", nil})) // prints 3
 
 // Register a func to be called after each state update
 store.AfterUpdate(func(state State) {
-  fmt.Println(store.Dispatch(Action{"get", nil})) // prints the count after every state update
+	fmt.Println(store.Dispatch(Action{"get", nil})) // prints the count after every state update
 })
 store.Dispatch(Action{"decrement", 2})
 ```
