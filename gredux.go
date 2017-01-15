@@ -34,7 +34,7 @@ type (
 func New(initialState State) *Store {
 	st := Store{
 		reducer: func(s State, a Action) State {
-			return s
+			return s, _
 		},
 		state: initialState,
 	}
@@ -65,11 +65,12 @@ func (st *Store) State() State {
 }
 
 // Dispatch dispatches an Action into the Store.
-func (st *Store) Dispatch(action Action) {
+func (st *Store) Dispatch(action Action) interface{} {
 	st.mu.Lock()
 	defer st.mu.Unlock()
-	st.state = st.reducer(st.getState(), action)
+	st.state, ret = st.reducer(st.getState(), action)
 	if st.update != nil {
 		st.update(st.getState())
 	}
+	return ret
 }
