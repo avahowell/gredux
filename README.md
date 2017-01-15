@@ -31,7 +31,7 @@ store.Reducer(func(state gredux.State, action gredux.Action) (gredux.State, inte
 		return counterState{state.(counterState).count + action.Data.(int)}, nil
 	case "decrement":
 		return counterState{state.(counterState).count - action.Data.(int)}, nil
-  case "get"
+	case "get"
 		return state, state.(counterState).count
 	default:
 		return state, nil

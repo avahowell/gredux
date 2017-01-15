@@ -68,7 +68,7 @@ func (st *Store) State() State {
 func (st *Store) Dispatch(action Action) interface{} {
 	st.mu.Lock()
 	defer st.mu.Unlock()
-  newState, ret := st.reducer(st.getState(), action)
+	newState, ret := st.reducer(st.getState(), action)
 	st.state = newState
 	if st.update != nil {
 		st.update(st.getState())
