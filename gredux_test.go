@@ -166,3 +166,26 @@ func BenchmarkDispatch(b *testing.B) {
 		store.Dispatch(Action{"increment", nil})
 	}
 }
+
+func TestConcurrentSelectorSupport(t *testing.T) {
+	type testState struct {
+		success bool
+	}
+	store := New(testState{false})
+	store.Reducer(func(state State, action Action) State {
+		switch action.ID {
+		case "select":
+			return state, state.select
+		default:
+			return testState{true}, _
+	})
+	for i := 0; i < 10; i++ {
+		go func() {
+			time.Sleep(time.Second * time.Duration(rand.Int()))
+			ret := store.Dispatch(Action{"select", nil})
+			if ret != true {
+				t.Error("Selector failed")
+			}
+		}()
+	}
+}
