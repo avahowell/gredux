@@ -12,12 +12,12 @@ func TestDispatch(t *testing.T) {
 	}
 	store := New(testState{false})
 	store.Dispatch(Action{"test", nil})
-	store.Reducer(func(state State, action Action) State {
+	store.Reducer(func(state State, action Action) (State, interface{}) {
 		switch action.ID {
 		case "test":
-			return testState{true}
+			return testState{true}, nil
 		default:
-			return state
+			return state, nil
 		}
 	})
 	store.Dispatch(Action{"test", nil})
@@ -31,12 +31,12 @@ func TestDispatchUpdate(t *testing.T) {
 		success bool
 	}
 	store := New(testState{false})
-	store.Reducer(func(state State, action Action) State {
+	store.Reducer(func(state State, action Action) (State, interface{}) {
 		switch action.ID {
 		case "test":
-			return testState{true}
+			return testState{true}, nil
 		default:
-			return state
+			return state, nil
 		}
 	})
 	done := make(chan struct{})
@@ -59,14 +59,14 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 		count int
 	}
 	store := New(counterState{0})
-	store.Reducer(func(state State, action Action) State {
+	store.Reducer(func(state State, action Action) (State, interface{}) {
 		switch action.ID {
 		case "increment":
-			return counterState{state.(counterState).count + action.Data.(int)}
+			return counterState{state.(counterState).count + action.Data.(int)}, nil
 		case "decrement":
-			return counterState{state.(counterState).count - action.Data.(int)}
+			return counterState{state.(counterState).count - action.Data.(int)}, nil
 		default:
-			return state
+			return state, nil
 		}
 	})
 	store.Dispatch(Action{"increment", 5})
@@ -88,8 +88,8 @@ func TestConcurrentDispatch(t *testing.T) {
 		success bool
 	}
 	store := New(testState{false})
-	store.Reducer(func(state State, action Action) State {
-		return testState{true}
+	store.Reducer(func(state State, action Action) (State, interface{}) {
+		return testState{true}, nil
 	})
 	for i := 0; i < 10; i++ {
 		go func() {
@@ -107,7 +107,7 @@ func TestStoreImmutability(t *testing.T) {
 		mutated bool
 	}
 	store := New(testState{false, false})
-	store.Reducer(func(state State, action Action) State {
+	store.Reducer(func(state State, action Action) (State, interface{}) {
 		st := state.(testState)
 		if st.mutated {
 			t.Fatal("state was mutated")
@@ -115,9 +115,9 @@ func TestStoreImmutability(t *testing.T) {
 		st.mutated = true
 		switch action.ID {
 		case "test":
-			return testState{true, false}
+			return testState{true, false}, nil
 		default:
-			return state
+			return state, nil
 		}
 	})
 	i := 0
@@ -153,12 +153,12 @@ func BenchmarkDispatch(b *testing.B) {
 		count int
 	}
 	store := New(counterState{0})
-	store.Reducer(func(state State, action Action) State {
+	store.Reducer(func(state State, action Action) (State, interface{}) {
 		switch action.ID {
 		case "increment":
-			return counterState{state.(counterState).count + 1}
+			return counterState{state.(counterState).count + 1}, nil
 		default:
-			return state
+			return state, nil
 		}
 	})
 
@@ -172,18 +172,19 @@ func TestConcurrentSelectorSupport(t *testing.T) {
 		success bool
 	}
 	store := New(testState{false})
-	store.Reducer(func(state State, action Action) State {
+	store.Reducer(func(state State, action Action) (State, interface{}) {
 		switch action.ID {
 		case "select":
-			return state, state.select
+			return state, state.(testState).success
 		default:
-			return testState{true}, _
+			return testState{true}, nil
+    }
 	})
 	for i := 0; i < 10; i++ {
 		go func() {
 			time.Sleep(time.Second * time.Duration(rand.Int()))
 			ret := store.Dispatch(Action{"select", nil})
-			if ret != true {
+			if ret != false {
 				t.Error("Selector failed")
 			}
 		}()
