@@ -1,8 +1,8 @@
 # gredux
-[![Go Report Card](https://goreportcard.com/badge/github.com/johnathanhowell/gredux)](https://goreportcard.com/report/github.com/johnathanhowell/gredux)
-[![Build Status](https://travis-ci.org/johnathanhowell/gredux.svg?branch=master)](https://travis-ci.org/johnathanhowell/gredux)
-[![codecov](https://codecov.io/gh/johnathanhowell/gredux/branch/master/graph/badge.svg)](https://codecov.io/gh/johnathanhowell/gredux)
-[![GoDoc](https://godoc.org/github.com/johnathanhowell/gredux?status.svg)](https://godoc.org/github.com/johnathanhowell/gredux)
+[![Go Report Card](https://goreportcard.com/badge/github.com/avahowell/gredux)](https://goreportcard.com/report/github.com/johnathanhowell/gredux)
+[![Build Status](https://travis-ci.org/avahowell/gredux.svg?branch=master)](https://travis-ci.org/johnathanhowell/gredux)
+[![codecov](https://codecov.io/gh/avahowell/gredux/branch/master/graph/badge.svg)](https://codecov.io/gh/johnathanhowell/gredux)
+[![GoDoc](https://godoc.org/github.com/avahowell/gredux?status.svg)](https://godoc.org/github.com/johnathanhowell/gredux)
 
 gredux is a golang implementation of a [redux](https://github.com/reactjs/redux)-esque state container. The aim is to provide a structure for writing applications which have consistent, predictable behaviour.
 
@@ -11,7 +11,7 @@ gredux is a golang implementation of a [redux](https://github.com/reactjs/redux)
 ```go
 
 import (
-	"github.com/johnathanhowell/gredux"
+	"github.com/avahowell/gredux"
 )
 
 // Create an initial state for the Store
