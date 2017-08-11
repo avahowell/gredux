@@ -10,7 +10,7 @@ type (
 
 	// Reducer is the func which receives actions dispatched
 	// using Store.Dispatch() and updates the internal state.
-	Reducer func(State, Action) State
+	Reducer func(State, Action) (State, interface{})
 
 	// Action defines a dispatchable data type that triggers updates in the Store.
 	Action struct {
@@ -33,8 +33,8 @@ type (
 // initialState should be the struct used to define the Store's state.
 func New(initialState State) *Store {
 	st := Store{
-		reducer: func(s State, a Action) State {
-			return s
+		reducer: func(s State, a Action) (State, interface{}) {
+			return s, nil
 		},
 		state: initialState,
 	}
@@ -65,11 +65,13 @@ func (st *Store) State() State {
 }
 
 // Dispatch dispatches an Action into the Store.
-func (st *Store) Dispatch(action Action) {
+func (st *Store) Dispatch(action Action) interface{} {
 	st.mu.Lock()
 	defer st.mu.Unlock()
-	st.state = st.reducer(st.getState(), action)
+	newState, ret := st.reducer(st.getState(), action)
+	st.state = newState
 	if st.update != nil {
 		st.update(st.getState())
 	}
+	return ret
 }

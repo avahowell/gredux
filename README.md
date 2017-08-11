@@ -22,27 +22,30 @@ type counterState struct {
 // Instantiate a new store around this state
 store := gredux.New(counterState{0})
 
-// Create a reducer which increments "count" when it receives an "increment" 
+// Create a reducer which increments "count" when it receives an "increment"
 // action, and decrements when it receives a "decrement" action.
-store.Reducer(func(state gredux.State, action gredux.Action) gredux.State {
+// Note: the second return value is the value returned by Dispatch -- useful for selectors
+store.Reducer(func(state gredux.State, action gredux.Action) (gredux.State, interface{}) {
 	switch action.ID {
 	case "increment":
-		return counterState{state.(counterState).count + action.Data.(int)}
+		return counterState{state.(counterState).count + action.Data.(int)}, nil
 	case "decrement":
-		return counterState{state.(counterState).count - action.Data.(int)}
+		return counterState{state.(counterState).count - action.Data.(int)}, nil
+	case "get"
+		return state, state.(counterState).count
 	default:
-		return state
+		return state, nil
 	}
 })
 
 store.Dispatch(Action{"increment", 5})
 store.Dispatch(Action{"decrement", 2})
 
-fmt.Println(store.State().(counterState).count) // prints 3
+fmt.Println(store.Dispatch(Action{"get", nil})) // prints 3
 
 // Register a func to be called after each state update
 store.AfterUpdate(func(state State) {
-	fmt.Println(state.(counterState).count) // prints the count after every state update
+	fmt.Println(store.Dispatch(Action{"get", nil})) // prints the count after every state update
 })
 store.Dispatch(Action{"decrement", 2})
 ```
