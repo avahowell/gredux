@@ -43,11 +43,11 @@ func New(initialState State) *Store {
 
 // CombineReducers return a reducer that calls all the reducers given to it.
 func CombineReducers(reducers ...Reducer) Reducer {
-	return func(s State, a Action) State {
-		for _, v := range reducers {
-			s = v(s, a)
+	return func(state State, action Action) State {
+		for _, reducer := range reducers {
+			state = reducer(state, action)
 		}
-		return s
+		return state
 	}
 }
 
