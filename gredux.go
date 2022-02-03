@@ -26,6 +26,7 @@ type (
 		reducer Reducer
 		state   State
 		update  func(State)
+		hooks   map[string][]func(State)
 	}
 )
 
@@ -37,6 +38,7 @@ func New(initialState State) *Store {
 			return s
 		},
 		state: initialState,
+		hooks: map[string][]func(State){},
 	}
 	return &st
 }
@@ -50,6 +52,18 @@ func (st *Store) Reducer(r Reducer) {
 // dispatch with a copy of the new state.
 func (st *Store) AfterUpdate(update func(State)) {
 	st.update = update
+}
+
+// AddHook adds a hook which is invoked for specific actions that are specified as second argument
+// The hook must not dispatch another actions otherwise deadlock will happen!
+func (st *Store) AddHook(hook func(State), actions []string)  {
+	for _, action := range actions {
+		if actionHooks, exists := st.hooks[action]; exists{
+			st.hooks[action] = append(actionHooks, hook)
+		} else {
+			st.hooks[action] = []func(State){hook}
+		}
+	}
 }
 
 // getState returns a copy of Store's current state map.
@@ -68,8 +82,14 @@ func (st *Store) State() State {
 func (st *Store) Dispatch(action Action) {
 	st.mu.Lock()
 	defer st.mu.Unlock()
+
 	st.state = st.reducer(st.getState(), action)
 	if st.update != nil {
 		st.update(st.getState())
+	}
+
+	actionHooks := st.hooks[action.ID]
+	for _, hook := range actionHooks {
+		hook(st.getState())
 	}
 }
