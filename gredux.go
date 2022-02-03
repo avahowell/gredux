@@ -55,6 +55,7 @@ func (st *Store) AfterUpdate(update func(State)) {
 }
 
 // AddHook adds a hook which is invoked for specific actions that are specified as second argument
+// The hook must not dispatch another actions otherwise deadlock will happen!
 func (st *Store) AddHook(hook func(State), actions []string)  {
 	for _, action := range actions {
 		if actionHooks, exists := st.hooks[action]; exists{

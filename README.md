@@ -46,6 +46,7 @@ store.AfterUpdate(func(state State) {
 })
 
 // Register a hook for given action that will be invoked everytime that action is dispatched 
+// This hook must not dispatch another action otherwise deadlock will happen!
 store.AddHook(func(state State) {
 	fmt.Println(state.(counterState).count) // prints the count after every state update
 }, []string{"increment"})
