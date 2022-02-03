@@ -44,6 +44,11 @@ fmt.Println(store.State().(counterState).count) // prints 3
 store.AfterUpdate(func(state State) {
 	fmt.Println(state.(counterState).count) // prints the count after every state update
 })
+
+// Register a hook for given action that will be invoked everytime that action is dispatched 
+store.AddHook(func(state State) {
+	fmt.Println(state.(counterState).count) // prints the count after every state update
+}, []string{"increment"})
 store.Dispatch(Action{"decrement", 2})
 ```
 

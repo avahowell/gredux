@@ -83,6 +83,72 @@ func TestDispatchIncrementDecrement(t *testing.T) {
 	}
 }
 
+
+func TestHooks(t *testing.T) {
+	var (
+		hookOneCalled = false
+		hookTwoCalled = false
+		hookThreeCalled = false
+		hookFourCalled = false
+	)
+
+	var hookOne = func (state State) {
+		hookOneCalled = true
+	}
+
+	var hookTwo = func (state State) {
+		hookTwoCalled = true
+	}
+
+	var hookThree = func (state State) {
+		hookThreeCalled = true
+	}
+
+	var hookFour = func (state State) {
+		hookFourCalled = true
+	}
+
+	type testState struct {
+		success bool
+	}
+
+	store := New(testState{false})
+	store.AddHook(hookOne, []string{"test"})
+	store.AddHook(hookTwo, []string{"otherTest"})
+	store.AddHook(hookThree, []string{"notCalled"})
+	store.AddHook(hookFour, []string{"test"})
+
+	store.Reducer(func(state State, action Action) State {
+		switch action.ID {
+		case "test":
+			return testState{true}
+		default:
+			return state
+		}
+	})
+
+	store.Dispatch(Action{"test", nil})
+	store.Dispatch(Action{"otherTest", nil})
+
+	if st := store.State().(testState); !st.success {
+		t.Fatal("expected reducer to set success")
+	}
+
+	if hookOneCalled == false {
+		t.Fatal("expected hookOne to be called")
+	}
+	if hookTwoCalled == false {
+		t.Fatal("expected hookTwo to be called")
+	}
+	if hookThreeCalled == true {
+		t.Fatal("expected hookThree NOT to be called")
+	}
+	if hookFourCalled == false {
+		t.Fatal("expected hookFour to be called")
+	}
+}
+
+
 func TestConcurrentDispatch(t *testing.T) {
 	type testState struct {
 		success bool
